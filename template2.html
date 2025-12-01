@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ayam Geprek Dini - Lezatnya Tiada Tara</title>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+
+  <style>
+    /* ------------------- Variables & Base ------------------- */
+    :root{
+      --primary:#ff6b00;
+      --accent:#e63946;
+      --bg:#f8f8f8;
+      --dark:#2b2b2b;
+      --muted:#6b6b6b;
+      --card:#fff;
+      --glass: rgba(255,255,255,0.85);
+      --placeholder:#eef1f4;
+
+      /* Poster / hero sizing (ubah di sini untuk menyesuaikan ukuran) */
+      --aside-width: 300px;       /* lebar kolom kanan pada hero */
+      --poster-height: 220px;     /* tinggi area poster */
+      --hero-min-height: 240px;   /* minimal tinggi kartu hero */
+      --poster-font-size: 16px;   /* ukuran font label poster */
+      --poster-label-padding: 6px 10px; /* padding label di poster */
+      --menu-thumb-height: 140px; /* tinggi thumbnail menu */
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(180deg,#fff,#f6f6f8 60%);
+      color:var(--dark);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.5;
+    }
+    .container{Width:94%;max-width:1200px;margin:0 auto;padding:0 16px;}
+
+    /* ------------------- Header ------------------- */
+    header{
+      position:fixed;left:0;right:0;top:0;z-index:1100;
+      background:rgba(255,255,255,0.95);
+      backdrop-filter:saturate(120%) blur(6px);
+      border-bottom:1px solid rgba(20,20,20,0.05);
+    }
+    .header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 0;}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo h1{font-size:20px;margin:0;color:var(--primary);letter-spacing:0.4px}
+    .logo sup{font-size:12px;color:var(--muted)}
+    nav ul{display:flex;gap:18px;list-style:none;margin:0;padding:0;align-items:center}
+    nav a{Color:var(--dark);text-decoration:none;font-weight:600;padding:8px;border-radius:8px}
+    nav a:hover, nav a.active{color:white;background:var(--primary)}
+    .mobile-toggle{display:none;font-size:20px;cursor:pointer}
+
+    /* ------------------- Hero / Posters (sized smaller) ------------------- */
+    .hero{
+      margin-top:72px;
+      padding:26px 0 20px;
+      perspective:1200px;
+    }
+    .hero-grid{display:grid;grid-template-columns:1fr var(--aside-width);gap:20px;align-items:center}
+    .hero-card{
+      background:linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.02));
+      border-radius:14px;
+      padding:20px;
+      color:var(--dark);
+      min-height:var(--hero-min-height);
+      position:relative;
+      display:flex;flex-direction:column;justify-content:center;align-items:flex-start;overflow:hidden;
+    }
+    .hero-card h2{font-size:28px;margin:6px 0 8px;letter-spacing:0.4px}
+    .hero-card p{max-width:650px;margin:0 0 14px;color:rgba(0,0,0,0.75)}
+    .cta-row{display:flex;gap:12px}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;border:0;cursor:pointer;font-weight:700;text-decoration:none}
+    .btn-primary{background:var(--primary);color:white}
+    .btn-outline{background:transparent;border:2px solid rgba(0,0,0,0.08);color:var(--dark)}
+
+    /* Posters flip (ukuran lebih kecil dan konsisten) */
+    .poster-wrap{position:relative;width:100%;height:var(--poster-height);display:block;transform-style:preserve-3d;}
+    .poster{
+      position:absolute;inset:0;border-radius:12px;background-size:cover;background-position:center;
+      backface-visibility:hidden;transform-origin:center center;box-shadow:0 10px 30px rgba(0,0,0,0.06);
+      display:flex;align-items:flex-end;padding:14px;color:white;font-weight:700;font-size:var(--poster-font-size);
+      transition: transform 700ms cubic-bezier(.2,.9,.3,1), opacity 700ms ease;
+      opacity:0;transform:rotateY(-90deg) scale(0.96);
+      overflow:hidden;
+    }
+    .poster.active{opacity:1;transform:rotateY(0deg) scale(1)}
+    .poster .label{background:linear-gradient(90deg, rgba(0,0,0,0.45), rgba(0,0,0,0.15));padding:var(--poster-label-padding);border-radius:8px; font-size:0.95em;}
+    .poster[data-img=""]{ background-color:var(--placeholder); color:var(--muted); align-items:center; justify-content:center; font-weight:700; font-size:14px; }
+
+    /* new: smaller image variant for specific posters */
+    .poster.small-img {
+      background-size: contain !important;
+      background-position: center center !important;
+      background-repeat: no-repeat !important;
+    }
+    .poster.small-img .label {
+      padding: 6px 10px;
+      font-size: 15px;
+      background: linear-gradient(90deg, rgba(0,0,0,0.45), rgba(0,0,0,0.18));
+    }
+
+    /* Right column: cart summary */
+    .aside-card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 8px 30px rgba(25,25,25,0.05)}
+    .cart-toggle{display:flex;align-items:center;gap:12px;cursor:pointer}
+    .cart-count{background:var(--accent);color:white;padding:6px 10px;border-radius:999px;font-weight:700}
+
+    /* ------------------- Sections ------------------- */
+    section.page-section{padding:44px 0 72px;display:none;padding-top:90px}
+    section.page-section.active{display:block}
+    h2.section-title{text-align:center;font-size:28px;margin:6px 0 24px;position:relative}
+    h2.section-title:after{content:"";width:90px;height:4px;background:var(--primary);display:block;margin:14px auto 0;border-radius:3px}
+
+    /* menu grid */
+    .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+    .menu-item{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 8px 20px rgba(20,20,20,0.05);display:flex;flex-direction:column}
+    .menu-thumb{height:var(--menu-thumb-height);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
+    .menu-thumb[data-img=""]{background-color:var(--placeholder)}
+    .menu-body{padding:14px;flex:1;display:flex;flex-direction:column}
+    .menu-body h3{margin:0 0 6px;font-size:16px}
+    .menu-body p{color:var(--muted);font-size:13px;margin-bottom:8px;flex:1}
+    .menu-footer{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .price-btn{background:transparent;border:0;color:var(--primary);font-weight:800;cursor:pointer}
+
+    /* cart panel */
+    .cart-panel{position:fixed;right:18px;bottom:18px;z-index:1200}
+    .cart-fab{background:linear-gradient(90deg,var(--primary),var(--accent));color:white;border-radius:999px;padding:12px 16px;display:flex;align-items:center;gap:8px;box-shadow:0 12px 30px rgba(255,110,40,0.15);cursor:pointer}
+    .cart-drawer{position:fixed;right:18px;bottom:80px;width:360px;max-width:92vw;background:var(--card);border-radius:12px;padding:12px;box-shadow:0 20px 50px rgba(0,0,0,0.12);display:none;flex-direction:column;overflow:hidden}
+    .cart-drawer.open{display:flex}
+    .cart-items{max-height:360px;overflow:auto;padding:6px}
+    .cart-row{display:flex;gap:8px;align-items:center;padding:8px;border-radius:8px}
+    .cart-row img{width:64px;height:48px;object-fit:cover;border-radius:8px}
+    .qty-control{display:flex;gap:6px;align-items:center}
+    .small-btn{padding:6px 8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:#f7f7f9;cursor:pointer}
+
+    .cart-footer{display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px dashed rgba(0,0,0,0.06)}
+    .checkout-btn{background:linear-gradient(90deg,var(--accent),var(--primary));color:white;padding:10px;border-radius:10px;border:0;font-weight:800;cursor:pointer}
+
+    /* checkout modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:1300}
+    .modal-backdrop.show{display:flex}
+    .modal{background:var(--card);padding:18px;border-radius:12px;width:420px;max-width:94%;box-shadow:0 20px 50px rgba(0,0,0,0.2)}
+    .form-row{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+    input[type=text],textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e9}
+    textarea{min-height:110px;resize:vertical}
+
+    /* Services grid - improved styling for symmetry */
+    .services-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:18px;
+      align-items:stretch;
+    }
+    .service-card{
+      background:var(--card);
+      padding:18px;
+      border-radius:10px;
+      text-align:center;
+      box-shadow:0 8px 20px rgba(0,0,0,0.04);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      min-height:140px;
+    }
+    .service-icon{
+      width:52px;
+      height:52px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      margin-bottom:12px;
+      font-size:20px;
+      background:linear-gradient(90deg,var(--primary),var(--accent));
+    }
+
+    /* Branch / locations list (no map image) */
+    .branches-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:14px;
+      align-items:start;
+    }
+    .branch-card{
+      background:var(--card);
+      border-radius:10px;
+      padding:14px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.04);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .branch-card h5{margin:0;font-size:16px;color:var(--primary)}
+    .branch-meta{font-size:14px;color:var(--muted)}
+    .branch-actions a{display:inline-block;margin-top:6px;color:#007bff;text-decoration:underline;font-size:14px}
+
+    /* Footer */
+    footer{padding:36px 0;background:linear-gradient(180deg,#111 0%, #0c0c0c 100%);color:#ddd;margin-top:36px}
+    .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+    .footer h4{color:#fff;margin-bottom:8px}
+    .social{display:flex;gap:8px}
+
+    /* Responsive */
+    @media (max-width:980px){
+      .hero-grid{grid-template-columns:1fr}
+      .mobile-toggle{display:block}
+      nav ul{display:none}
+      nav ul.show{display:flex;position:absolute;left:16px;right:16px;top:60px;background:var(--glass);flex-direction:column;padding:12px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.08)}
+      .cart-drawer{right:12px;left:12px;bottom:80px}
+      .poster-wrap{height:160px;} /* poster lebih kecil di mobile */
+      .poster.small-img { background-size: contain !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <div class="logo">
+        <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:800">
+          DFC
+        </div>
+        <div>
+          <h1>Ayam Geprek <span style="color:var(--accent)">Dini</span></h1>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Lezatnya Tiada Tara</div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="mobile-toggle" id="mobileToggle"><i class="fas fa-bars"></i></div>
+        <ul id="navUl">
+          <li><a href="#" class="nav-link active" data-target="home">Home</a></li>
+          <li><a href="#" class="nav-link" data-target="menu">Menu</a></li>
+          <li><a href="#" class="nav-link" data-target="about">Tentang Kami</a></li>
+          <li><a href="#" class="nav-link" data-target="services">Layanan</a></li>
+          <li><a href="#" class="nav-link" data-target="locations">Cabang & Peta</a></li>
+          <li><a href="#" class="nav-link" data-target="contact">Kontak</a></li>
+        </ul>
+      </nav>
+
+      <div class="cart-toggle" title="Buka keranjang" id="openCartBtn">
+        <div class="cart-fab">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Keranjang</span>
+          <span class="cart-count" id="cartCount">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <section id="home" class="page-section active">
+      <div class="hero">
+        <div class="hero-grid">
+          <div class="hero-card">
+            <div class="poster-wrap" id="posterWrap" aria-hidden="false">
+              <div class="poster active small-img" data-img="outlet1.png">
+                <div class="label">Ayam Geprek Dini — Sambal Rahasia Keluarga</div>
+              </div>
+              <div class="poster" data-img="outlet2.png">
+                <div class="label">Geprek sambal hijau — Favorit Pelanggan</div>
+              </div>
+              <div class="poster small-img" data-img="outlet3.png">
+                <div class="label">Paket Hemat & Catering untuk acara</div>
+              </div>
+            </div>
+
+            <h2>Ayam Geprek Dini</h2>
+            <p>Rasakan kelezatan ayam geprek dengan sambal spesial yang menggugah selera. Olahan rumahan, bahan pilihan, dan layanan cepat.</p>
+            <div class="cta-row">
+              <a class="btn btn-primary nav-link" href="#" data-target="menu"><i class="fa-solid fa-list"></i> Lihat Menu</a>
+              <a class="btn btn-outline" href="https://wa.me/6282350538688?text=Halo%20Ayam%20Geprek%20Dini!%20Saya%20mau%20tanya%20menu." target="_blank"><i class="fa-brands fa-whatsapp"></i> Chat Sekarang</a>
+            </div>
+          </div>
+
+          <aside class="aside-card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-size:13px;color:var(--muted)">Pesan cepat ke WhatsApp</div>
+                <div style="font-weight:800;font-size:18px">0823-5053-8688</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:12px;color:var(--muted)"></div>
+                <div style="font-weight:700;color:var(--primary)"></div>
+              </div>
+            </div>
+
+            <hr style="margin:12px 0;border:none;border-top:1px dashed rgba(0,0,0,0.06)">
+
+            <div style="font-size:14px;color:var(--muted);margin-bottom:8px">Tambah menu ke keranjang dan lakukan 1x checkout. Atau klik harga untuk pesan cepat.</div>
+
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+              <button class="small-btn" onclick="scrollToSection('menu')">Lihat Menu</button>
+              <button class="small-btn" onclick="scrollToSection('locations')">Lokasi Cabang</button>
+              <button class="small-btn" onclick="scrollToSection('contact')">Kontak</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- MENU -->
+    <section id="menu" class="page-section">
+      <h2 class="section-title">Menu Kami</h2>
+      <div class="menu-grid" id="menuGrid">
+        <!-- JS akan render item menu di sini -->
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="page-section">
+      <h2 class="section-title">Tentang Kami</h2>
+      <div style="display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:center">
+        <div style="background:var(--card);padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.04)">
+          <h3>Sejarah Singkat</h3>
+          <p>UMKM Ayam Geprek Dini didirikan pada tahun 2022, ketika pemiliknya masih duduk di kelas 3 SMA. Usaha ini bermula dari hal sederhana: adiknya sangat menyukai fried chicken, sehingga ibunya membantu membuka usaha kecil di rumah. Awalnya, penjualan dilakukan secara online melalui media sosial dan layanan pesan antar.
+          </p>
+
+          <p>Tanpa disangka, respon pelanggan sangat positif. Rasa ayam yang gurih, pedas yang bisa dipilih sesuai selera, serta harga yang ramah di kantong membuat Ayam Geprek Dini cepat dikenal masyarakat sekitar. Seiring meningkatnya permintaan, usaha ini kemudian mulai membuka outlet kecil, yang terus berkembang dari waktu ke waktu.
+          </p>
+
+          <p>Perjalanan usaha yang dimulai dari rumah akhirnya membawa Ayam Geprek Dini memiliki hingga 3 cabang saat ini. Hingga hari ini, UMKM ini terus bertahan dan berkembang dengan menjaga kualitas rasa, pelayanan yang ramah, serta inovasi menu untuk memenuhi kebutuhan pelanggan.</p>
+          <p style="font-weight:700"></p>
+        </div>
+
+        <div style="background:linear-gradient(180deg,#fff,#fff);padding:10px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.04)">
+          <img id="aboutImage" src="tentang kami.png" alt="Ganti gambar tentang kami" style="width:100%;border-radius:10px;display:block;background-color:var(--placeholder);min-height:160px">
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="page-section">
+      <h2 class="section-title">Layanan Kami</h2>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-truck"></i></div>
+          <h4>Pesan Antar</h4>
+          <p style="margin:0;color:var(--muted)">Layanan antar untuk area cabang kami dengan kurir terpercaya.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-motorcycle"></i></div>
+          <h4>Order via Mitra</h4>
+          <p style="margin:0;color:var(--muted)">Tersedia pada GrabFood / GoFood atau mitra lokal sesuai cabang.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-users"></i></div>
+          <h4>Catering & Paket</h4>
+          <p style="margin:0;color:var(--muted)">Paket catering untuk acara kecil hingga menengah, hubungi WA untuk penawaran.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon"><i class="fas fa-headset"></i></div>
+          <h4>Dukungan Pelanggan</h4>
+          <p style="margin:0;color:var(--muted)">Bantuan pesanan, komplain, dan refund melalui WhatsApp resmi kami.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION CABANG (dengan link Maps untuk semua cabang) ============ -->
+    <section id="locations" class="page-section">
+      <h2 class="section-title">Cabang Kami</h2>
+
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start">
+        <div>
+          <div class="branches-grid" role="list">
+            <div class="branch-card" role="listitem">
+              <h5>Cabang 1 — Pusat</h5>
+              <div class="branch-meta">Jl. Pengairan, SIDRAP</div>
+              <div class="branch-meta">Jam: 08:00 - habis</div>
+              <div class="branch-actions">
+                <a href="https://www.google.com/maps?q=Ayam+Geprek+Dini+Pangkajene+Sidrap+Jalan+Pengairan" target="_blank" rel="noopener">📍 Buka di Google Maps</a>
+              </div>
+            </div>
+
+            <div class="branch-card" role="listitem">
+              <h5>Cabang 2 — Pangkajene</h5>
+              <div class="branch-meta">Jl. Musang (Depan SDIT AT-Tauhid)</div>
+              <div class="branch-meta">Jam: 06:00 - habis</div>
+              <div class="branch-actions">
+                <a href="https://maps.app.goo.gl/JPNcJHGVyBmisVAy8?g_st=ipc" target="_blank" rel="noopener">📍 Buka di Google Maps</a>
+              </div>
+            </div>
+
+            <div class="branch-card" role="listitem">
+              <h5>Cabang 3 — Pangkajene</h5>
+              <div class="branch-meta">Jl. Lanto Dg. Pasewang</div>
+              <div class="branch-meta">Jam: 08:00 - habis</div>
+              <div class="branch-actions">
+                <a href="https://maps.app.goo.gl/43vp6VSFhLLWCR789?g_st=ipc" target="_blank" rel="noopener">📍 Buka di Google Maps</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="aside-card">
+            <h4 style="margin:0 0 8px">Informasi Cabang</h4>
+            <div style="font-size:14px;color:var(--muted)">
+              <div><i class="fas fa-phone"></i> 0823-5053-8688 (WhatsApp)</div>
+              <div style="margin-top:6px">Silakan klik "Buka di Google Maps" untuk navigasi.</div>
+            </div>
+          </div>
+
+          <div class="aside-card">
+            <h4 style="margin:0 0 8px">Tips</h4>
+            <p style="margin:0;color:var(--muted)">Jika link Google Maps kosong, gantikan dengan koordinat atau alamat lengkap cabang.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="page-section">
+      <h2 class="section-title">Kontak & Pesanan</h2>
+      <div style="display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:start">
+        <div style="background:var(--card);padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.04)">
+          <h3>Form Cepat</h3>
+          <p style="color:var(--muted)">Cukup isi Nama Lengkap, Pesanan (opsional jika Anda ingin menulis pesan atau detail) dan Alamat. Atau gunakan keranjang untuk checkout 1x ke WhatsApp.</p>
+          <form id="quickContact">
+            <div class="form-row">
+              <label>Nama Lengkap</label>
+              <input type="text" id="contactName" required placeholder="Nama Anda">
+            </div>
+            <div class="form-row">
+              <label>Pesanan (opsional)</label>
+              <input type="text" id="contactOrder" placeholder="Mis: Ayam Geprek Original x2">
+            </div>
+            <div class="form-row">
+              <label>Alamat Pengantaran</label>
+              <textarea id="contactAddress" placeholder="Alamat lengkap untuk pengantaran" required></textarea>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button type="submit" class="btn btn-primary"><i class="fa-brands fa-whatsapp"></i> Kirim ke WhatsApp</button>
+              <button type="button" class="small-btn" onclick="openCart()">Buka Keranjang</button>
+            </div>
+          </form>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="aside-card">
+            <h4 style="margin:0 0 8px">Informasi</h4>
+            <div style="font-size:14px;color:var(--muted)">
+              <div><i class="fas fa-map-marker-alt"></i> Jl. Pengairan, Pangkajene</div>
+              <div><i class="fas fa-phone"></i> 0823-5053-8688 (WhatsApp)</div>
+              <div><i class="fas fa-clock"></i> Senin - Minggu: 09:00 - 22:00</div>
+            </div>
+          </div>
+
+          <div class="aside-card">
+            <h4 style="margin:0 0 8px">Sosial media</h4>
+            <div class="social" aria-label="Sosial media Ayam Geprek Dini">
+              <!-- Instagram -->
+              <a href="https://instagram.com/nrfdini.nyy_" class="small-btn" target="_blank" rel="noopener" title="Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+
+              <!-- Facebook -->
+              <a href="https://facebook.com/kartinimuhadii" class="small-btn" target="_blank" rel="noopener" title="Facebook">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+
+              <!-- WhatsApp nomor 1 -->
+              <a href="https://wa.me/6282292462912" class="small-btn" target="_blank" rel="noopener" title="WhatsApp 082292462912">
+                <i class="fab fa-whatsapp"></i>
+              </a>
+
+              <!-- WhatsApp nomor 2 -->
+              <a href="https://wa.me/6285212234557" class="small-btn" target="_blank" rel="noopener" title="WhatsApp 085212234557">
+                <i class="fab fa-whatsapp"></i>
+              </a>
+
+              <!-- Grab (link pencarian Grab; jika Anda punya link merchant resmi, ganti di sini) -->
+              <a href="https://www.grab.com/id/search/?q=ayamgeprekdini" class="small-btn" target="_blank" rel="noopener" title="Grab - ayamgeprekdini">
+                <i class="fas fa-utensils"></i>
+              </a>
+            </div>
+
+            <div style="margin-top:8px;font-size:13px;color:var(--muted)">
+              IG: <strong>nrfdini.nyy_</strong><br>
+              FB: <strong>kartinimuhadii</strong><br>
+              WA: <strong>082292462912</strong> / <strong>085212234557</strong><br>
+              Grab: <strong>ayamgeprekdini</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <h4>Ayam Geprek Dini</h4>
+            <p>Menghadirkan kelezatan ayam geprek otentik sejak 2022. Pesan via WhatsApp untuk layanan cepat.</p>
+          </div>
+          <div>
+            <h4>Menu Populer</h4>
+            <ul style="list-style:none;padding:0;margin:0;color:#bbb">
+              <li>Ayam Geprek sambal hijau</li>
+              <li>Ayam Geprek sambal merah</li>
+              <li>Ayam krispy</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Link Cepat</h4>
+            <ul style="list-style:none;padding:0;margin:0;color:#bbb">
+              <li><a href="#" class="nav-link" data-target="home" style="color:#bbb;text-decoration:none">Home</a></li>
+              <li><a href="#" class="nav-link" data-target="menu" style="color:#bbb;text-decoration:none">Menu</a></li>
+              <li><a href="#" class="nav-link" data-target="contact" style="color:#bbb;text-decoration:none">Kontak</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Kontak</h4>
+            <div style="color:#bbb">0823-5053-8688 (WhatsApp)</div>
+            <div style="color:#bbb"></div>
+
+            <div style="margin-top:8px" class="social">
+              <a href="https://instagram.com/nrfdini.nyy_" target="_blank" rel="noopener" style="color:#bbb;margin-right:8px;text-decoration:none"><i class="fab fa-instagram"></i></a>
+              <a href="https://facebook.com/kartinimuhadii" target="_blank" rel="noopener" style="color:#bbb;margin-right:8px;text-decoration:none"><i class="fab fa-facebook-f"></i></a>
+              <a href="https://wa.me/6282292462912" target="_blank" rel="noopener" style="color:#bbb;margin-right:8px;text-decoration:none"><i class="fab fa-whatsapp"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:18px;color:#777;font-size:13px">
+          &copy; 2025 Ayam Geprek Dini. All Rights Reserved.
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- CART PANEL -->
+  <div class="cart-panel" aria-hidden="false">
+    <div class="cart-drawer" id="cartDrawer" role="dialog" aria-label="Keranjang belanja">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 6px 8px">
+        <div style="font-weight:800">Keranjang Anda <span id="cartItemCount" style="font-weight:600;color:var(--muted);font-size:13px;margin-left:8px">0 item</span></div>
+        <div>
+          <button class="small-btn" onclick="closeCart()">Tutup</button>
+        </div>
+      </div>
+
+      <div class="cart-items" id="cartItems"></div>
+
+      <div class="cart-footer">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">Total:</div>
+          <div id="cartTotal" style="font-weight:900;color:var(--primary)">Rp 0</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="small-btn" onclick="clearCart()">Kosongkan</button>
+          <button class="checkout-btn" onclick="openCheckout()">Checkout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT MODAL -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+      <h3 id="checkoutTitle">Checkout & Kirim ke WhatsApp</h3>
+      <form id="checkoutForm">
+        <div class="form-row">
+          <label>Nama Lengkap</label>
+          <input type="text" id="checkoutName" placeholder="Nama penerima" required>
+        </div>
+        <div class="form-row">
+          <label>Alamat Pengantaran</label>
+          <textarea id="checkoutAddress" placeholder="Alamat lengkap untuk pengantaran" required></textarea>
+        </div>
+        <div class="form-row">
+          <label>Catatan (opsional)</label>
+          <input type="text" id="checkoutNote" placeholder="Contoh: Tanpa daun kemangi">
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button type="button" class="small-btn" onclick="closeCheckout()">Batal</button>
+          <button type="submit" class="checkout-btn"><i class="fa-brands fa-whatsapp"></i> Kirim Pesanan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ------------------- Data Produk -------------------
+    const WA_NUMBER = '6282350538688'; // no leading + or 0 (international format for wa.me)
+
+    // Make sure product ids are unique
+    const products = [
+      { id: 'g1', name: 'Ayam Geprek Dada/Paha atas + Nasi', price: 20000, img: 'gambar2.jpg' },
+      { id: 'g6', name: 'Ayam Geprek Sayap/Paha bawah  + Nasi', price: 18000, img: 'gambar7.jpg' },
+      { id: 'g2', name: 'Ayam Krispy Paha Atas + Nasi', price: 15000, img: 'gambar1.jpg' },
+      { id: 'g3', name: 'Ayam Krispy Dada + Nasi', price: 15000, img: 'gambar4.jpg' },
+      { id: 'g4', name: 'Ayam Krispy Sayap + Nasi', price: 13000, img: 'gambar3.jpg' },
+      { id: 'g5', name: 'Ayam Krispy Paha bawah + Nasi', price: 13000 , img: 'gambar6.jpg' },
+      { id: 'f1', name: 'Frozen Chicken Geprek (1 pack)', price: 18000, img: 'gambar2.jpg' }
+    ];
+
+    const PLACEHOLDER_IMG_SVG = encodeURIComponent(
+      `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'>
+         <rect width='100%' height='100%' fill='#eef1f4'/>
+         <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa3ab' font-family='Arial, sans-serif' font-size='16'>Ganti gambar di sini</text>
+       </svg>`
+    );
+    const PLACEHOLDER_IMG = `data:image/svg+xml;utf8,${PLACEHOLDER_IMG_SVG}`;
+
+    function formatRupiah(n){
+      return 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function renderMenu(){
+      const grid = document.getElementById('menuGrid');
+      grid.innerHTML = '';
+      products.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'menu-item';
+
+        const thumb = `<div class="menu-thumb" data-img="${p.img || ''}" ${p.img ? `style="background-image:url('${p.img}')" ` : ''}>${!p.img ? '<div style="padding:8px;text-align:center">GANTI GAMBAR</div>' : ''}</div>`;
+
+        div.innerHTML = `
+          ${thumb}
+          <div class="menu-body">
+            <h3>${p.name}</h3>
+            <p>Resep khas, dibuat dengan bahan pilihan. Pilih jumlah dan tambah ke keranjang atau pesan cepat lewat WhatsApp.</p>
+            <div class="menu-footer">
+              <div>
+                <button class="price-btn" onclick="quickOrder('${p.id}')">${formatRupiah(p.price)}</button>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="small-btn" onclick="addToCart('${p.id}', 1)">Tambah</button>
+                <button class="small-btn" onclick="addToCart('${p.id}', 2)">+2</button>
+              </div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    // ------------------- Cart Logic -------------------
+    let cart = {}; // { productId: qty }
+
+    function saveCart(){ localStorage.setItem('agd_cart', JSON.stringify(cart)); }
+    function loadCart(){ try{ cart = JSON.parse(localStorage.getItem('agd_cart')) || {}; }catch(e){ cart = {}; } }
+
+    function addToCart(id, qty=1){
+      if(!cart[id]) cart[id]=0;
+      cart[id] += qty;
+      if(cart[id] < 1) delete cart[id];
+      saveCart();
+      renderCart();
+      openCart();
+    }
+
+    function updateQty(id, qty){
+      if(qty <= 0){ delete cart[id]; }
+      else cart[id] = qty;
+      saveCart(); renderCart();
+    }
+
+    function removeFromCart(id){
+      delete cart[id]; saveCart(); renderCart();
+    }
+
+    function clearCart(){ cart={}; saveCart(); renderCart(); }
+
+    function cartSummary(){
+      let total=0, items=0;
+      for(const id in cart){
+        const p = products.find(x=>x.id===id);
+        if(!p) continue;
+        const qty = cart[id];
+        total += p.price * qty;
+        items += qty;
+      }
+      return { total, items };
+    }
+
+    function renderCart(){
+      const panel = document.getElementById('cartDrawer');
+      const itemsWrap = document.getElementById('cartItems');
+      const count = document.getElementById('cartCount');
+      const itemCount = document.getElementById('cartItemCount');
+      const totalEl = document.getElementById('cartTotal');
+
+      itemsWrap.innerHTML = '';
+      let any=false;
+      for(const id in cart){
+        const p = products.find(x=>x.id===id);
+        if(!p) continue;
+        any=true;
+        const qty = cart[id];
+        const row = document.createElement('div');
+        row.className = 'cart-row';
+        const imgSrc = p.img ? p.img : PLACEHOLDER_IMG;
+        row.innerHTML = `
+          <img src="${imgSrc}" alt="${p.name}">
+          <div style="flex:1">
+            <div style="font-weight:700">${p.name}</div>
+            <div style="color:var(--muted);font-size:13px">${formatRupiah(p.price)} x ${qty} = <strong>${formatRupiah(p.price*qty)}</strong></div>
+            <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+              <div class="qty-control">
+                <button class="small-btn" onclick="updateQty('${id}', ${qty-1})">-</button>
+                <div style="padding:6px 10px;border-radius:8px;background:#f7f7f9">${qty}</div>
+                <button class="small-btn" onclick="updateQty('${id}', ${qty+1})">+</button>
+              </div>
+              <button class="small-btn" onclick="removeFromCart('${id}')">Hapus</button>
+            </div>
+          </div>
+        `;
+        itemsWrap.appendChild(row);
+      }
+
+      const { total, items } = cartSummary();
+      count.textContent = items;
+      itemCount.textContent = items + ' item';
+      totalEl.textContent = formatRupiah(total);
+
+      if(!any){
+        itemsWrap.innerHTML = `<div style="padding:14px;color:var(--muted)">Keranjang kosong. Tambah menu untuk memesan.</div>`;
+      }
+    }
+
+    // ------------------- Quick Order (price click) -------------------
+    function quickOrder(id){
+      const p = products.find(x=>x.id===id);
+      if(!p) return;
+      let qty = prompt('Jumlah ' + p.name + ' yang dipesan:', '1');
+      if(qty === null) return;
+      qty = parseInt(qty) || 1;
+      let address = prompt('Masukkan alamat pengiriman (contoh: Jl. ABC No. 1):', '');
+      if(address === null) return;
+      const subtotal = p.price * qty;
+      const msg = `Halo Ayam Geprek Dini 👋%0A%0ASaya mau pesan:%0A- ${encodeURIComponent(qty + ' x ' + p.name)}%0AHarga per pcs: ${encodeURIComponent(formatRupiah(p.price))}%0ASubtotal: ${encodeURIComponent(formatRupiah(subtotal))}%0A%0AAlamat antar: ${encodeURIComponent(address)}%0A%0ATerima kasih.`;
+      const url = `https://wa.me/${WA_NUMBER}?text=${msg}`;
+      window.open(url, '_blank');
+    }
+
+    // ------------------- Cart UI Controls -------------------
+    const cartDrawer = document.getElementById('cartDrawer');
+    const openCartBtn = document.getElementById('openCartBtn');
+
+    function openCart(){ cartDrawer.classList.add('open'); }
+    function closeCart(){ cartDrawer.classList.remove('open'); }
+
+    openCartBtn.addEventListener('click', ()=>{ cartDrawer.classList.toggle('open'); });
+
+    // ------------------- Checkout -------------------
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    function openCheckout(){
+      const { items } = cartSummary();
+      if(items === 0){
+        alert('Keranjang kosong. Tambahkan menu terlebih dahulu atau gunakan pesan cepat.');
+        return;
+      }
+      modalBackdrop.classList.add('show');
+    }
+    function closeCheckout(){ modalBackdrop.classList.remove('show'); }
+
+    document.getElementById('checkoutForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const name = document.getElementById('checkoutName').value.trim();
+      const address = document.getElementById('checkoutAddress').value.trim();
+      const note = document.getElementById('checkoutNote').value.trim();
+      if(!name || !address){ alert('Nama dan alamat wajib diisi.'); return; }
+
+      let text = `Halo Ayam Geprek Dini 👋%0A%0APesanan dari: ${encodeURIComponent(name)}%0AAlamat: ${encodeURIComponent(address)}%0A%0ADetail pesanan:%0A`;
+      let total = 0;
+      for(const id in cart){
+        const p = products.find(x=>x.id===id);
+        if(!p) continue;
+        const qty = cart[id];
+        total += p.price*qty;
+        text += `- ${encodeURIComponent(qty + ' x ' + p.name)} = ${encodeURIComponent(formatRupiah(p.price*qty))}%0A`;
+      }
+      text += `%0ATotal:%20${encodeURIComponent(formatRupiah(total))}%0A`;
+      if(note) text += `%0ANote:%20${encodeURIComponent(note)}%0A`;
+      text += `%0ATerima%20kasih.`;
+
+      const url = `https://wa.me/${WA_NUMBER}?text=${text}`;
+      window.open(url, '_blank');
+
+      clearCart();
+      closeCheckout();
+      closeCart();
+    });
+
+    // Quick contact form sends directly to WA (single message)
+    document.getElementById('quickContact').addEventListener('submit', function(e){
+      e.preventDefault();
+      const name = document.getElementById('contactName').value.trim();
+      const order = document.getElementById('contactOrder').value.trim();
+      const address = document.getElementById('contactAddress').value.trim();
+      if(!name || !address){ alert('Nama dan alamat wajib diisi.'); return; }
+      let text = `Halo Ayam Geprek Dini 👋%0A%0A${encodeURIComponent('Nama: ' + name)}%0AAlamat: ${encodeURIComponent(address)}%0A`;
+      if(order) text += `%0APesanan (ditulis manual): ${encodeURIComponent(order)}%0A`;
+      text += `%0ATerima%20kasih.`;
+      const url = `https://wa.me/${WA_NUMBER}?text=${text}`;
+      window.open(url, '_blank');
+    });
+
+    // ------------------- Navigation & Init -------------------
+    document.addEventListener('DOMContentLoaded', ()=>{
+      renderMenu();
+      loadCart();
+      renderCart();
+
+      const navLinks = document.querySelectorAll('.nav-link');
+      const pageSections = document.querySelectorAll('.page-section');
+      navLinks.forEach(link=>{
+        link.addEventListener('click', function(e){
+          e.preventDefault();
+          const target = this.dataset.target;
+          if(!target) return;
+          navLinks.forEach(l=>l.classList.remove('active'));
+          this.classList.add('active');
+          pageSections.forEach(s=>s.classList.remove('active'));
+          const el = document.getElementById(target);
+          if(el) el.classList.add('active');
+          document.getElementById('navUl').classList.remove('show');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+
+      const mobileToggle = document.getElementById('mobileToggle');
+      mobileToggle.addEventListener('click', ()=> {
+        document.getElementById('navUl').classList.toggle('show');
+      });
+
+      setupPosters();
+
+      const aboutImg = document.getElementById('aboutImage');
+      if(!aboutImg.getAttribute('src') || aboutImg.getAttribute('src') === '') aboutImg.setAttribute('src', PLACEHOLDER_IMG);
+    });
+
+    function scrollToSection(id){
+      const link = document.querySelector(`.nav-link[data-target="${id}"]`);
+      if(link) link.click();
+    }
+
+    // Posters
+    function setupPosters(){
+      const posters = Array.from(document.querySelectorAll('.poster'));
+      posters.forEach(p=>{
+        const url = p.getAttribute('data-img') || '';
+        if(url){
+          p.style.backgroundImage = `url('${url}')`;
+        } else {
+          p.setAttribute('data-img', '');
+        }
+      });
+
+      let idx = 0;
+      setInterval(()=>{
+        const current = posters[idx];
+        current.classList.remove('active');
+        idx = (idx+1) % posters.length;
+        const next = posters[idx];
+        setTimeout(()=> next.classList.add('active'), 60);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
